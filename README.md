@@ -30,7 +30,7 @@ Also more for fun, I generated word clouds of the most frequently used nouns in 
 
 While word clouds aren't exactly professional or academic charts, I do think these offer some quick insight into the minds of these campaigns. What I do find particularly interesting is the other people that pop up as frequently used nouns. The Trump campaign frequently brings up Donald Trump Jr. who did play a rather large role in his father's campaign, while Joe Biden's campaign made frequent reference to Kamala Harris his vice president, also quite a few of the messages were signed off by Jaime who idenifies themselves as the one actually sending out the messages (it would be bizarre to imagine any of the actual candidates doing the texting themselves). Warnock's mentioned Trump even more frequently than Warnock himself. 
 
-I'll be posting more information about this project as it continues to unfold. I plan on doing some more intricate text mining after I get the basic web view set up. If you're interested in looking at the data yourself you can find a link to the csv file containing all of the text messages here: 
+I'll be posting more information about this project as it continues to unfold. I plan on doing some more intricate text mining after I get the basic web view set up. If you're interested in looking at the data yourself you can find a link to the csv file containing all of the text messages here: https://github.com/coreyclip/Political-SMS-Dashboard/blob/main/ProcessedTexts.csv
 
 ## Technical notes: 
 how to grab text messages from iphone: https://superuser.com/questions/237339/how-to-get-text-messages-off-of-iphone-in-ubuntu
