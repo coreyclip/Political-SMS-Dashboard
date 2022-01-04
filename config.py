@@ -19,3 +19,9 @@ class Config:
     STATIC_FOLDER = os.environ.get('STATIC_FOLDER')
     TEMPLATES_FOLDER = os.environ.get('TEMPLATES_FOLDER')
     COMPRESSOR_DEBUG = os.environ.get('COMPRESSOR_DEBUG')
+
+    #Gmail
+    FROM_EMAIL = os.environ.get('FROM_EMAIL')
+    FROM_PWD = os.environ.get('FROM_PWD')
+    GMAIL_CLIENT_ID= os.environ.get('GMAIL_CLIENT_ID')
+    GMAIL_CLIENT_SECRET = os.environ.get('GMAIL_CLIENT_SECRET')
