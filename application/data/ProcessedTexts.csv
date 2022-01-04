@@ -1,4 +1,4 @@
-,ROWID,SenderPhonNumber,Sender,text,attributedBody,type,date,timestamp,month_name,day_name,day,hour,weekday,week,year,polarity,subjectivity,negativity,neutrality,positivity,compound,nouns,tags,word_count
+,ROWID,SenderPhone,Sender,text,attributedBody,type,date,timestamp,month_name,day_name,day,hour,weekday,week,year,polarity,subjectivity,negativity,neutrality,positivity,compound,nouns,tags,word_count
 0,153251,88022,Trump,"Why haven't you claimed your Trump Christmas Stocking yet? Do you NOT want to MAKE CHRISTMAS GREAT AGAIN? 5 minutes left. Claim: bit.ly/3qSjXNi
 
 Stop2End","streamtyped���@���NSMutableAttributedString��NSAttributedString��NSObject�����NSMutableString��NSString��+��Why haven't you claimed your Trump Christmas Stocking yet? Do you NOT want to MAKE CHRISTMAS GREAT AGAIN? 5 minutes left. Claim: bit.ly/3qSjXNi
