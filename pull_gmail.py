@@ -1,5 +1,9 @@
 import os
 import pickle
+import re
+import csv
+import pdb
+import argparse 
 # Gmail API utils
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -22,6 +26,12 @@ app_config = Config()
 # Request all access (permission to read/send/receive emails, manage the inbox, and more)
 SCOPES = ['https://mail.google.com/']
 our_email = app_config.FROM_EMAIL
+parser = argparse.ArgumentParser(description='pass sender number')
+parser.add_argument('--sender', type=str, required=True)
+
+args = parser.parse_args()
+# search_sender = "88022"
+search_sender = args.sender
 
 
 def gmail_authenticate():
@@ -126,6 +136,7 @@ def parse_parts(service, parts, folder_name, message, save_attachment=False):
                             if data and save_attachment:
                                 with open(filepath, "wb") as f:
                                     f.write(urlsafe_b64decode(data))
+            return text
 
 
 def read_message(service, message, save_email=False):
@@ -175,19 +186,40 @@ def read_message(service, message, save_email=False):
                     os.mkdir(folder_name)
                 print("Subject:", value)
             if name.lower() == "date":
-                # we print the date when the message was sent
                 print("Date:", value)
+                date_sent = value
     if not has_subject:
         # if the email does not have a subject, then make a folder with "email" name
         # since folders are created based on subjects
         if save_email:
             if not os.path.isdir(folder_name):
                 os.mkdir(folder_name)
-    parse_parts(service, parts, folder_name, message, save_attachment=save_email)
-    print("="*50)
+    text = parse_parts(service, parts, folder_name, message, save_attachment=save_email)
+    return text, date_sent
+
+
 
 # get emails that match the query you specify
-results = search_messages(service, "88022")
+results = search_messages(service, search_sender)
 # for each email matched, read it (output plain/text to console & save HTML and attachments)
+
+text_re = re.compile(r"(?s)(?<=<https:\/\/voice\.google\.com>)(.*)(?=YOUR ACCOUNT)").search
+
+output = []
 for msg in results:
-    read_message(service, msg)
+    try:
+        text, date_sent = read_message(service, msg)
+        search = text_re(text)
+        if search:
+            match = search.group(1)
+            print(match)
+            output.append({"date_sent": date_sent, "text":match})
+    except:
+        pdb.set_trace()
+
+with open('sms_export.csv', 'w') as csv_file:
+    writer = csv.writer(csv_file)
+    writer.writerow(['date_sent', 'text'])
+    for row in output:
+        writer.writerow([row['date_sent'], row['text']])
+
