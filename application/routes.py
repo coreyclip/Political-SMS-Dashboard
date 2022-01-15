@@ -25,13 +25,16 @@ def internal_error(error):
 def fetch_data(author=None, tail_int=10, sort_by_date=True):
 
     df = pd.read_csv('./application/data/ProcessedTexts.csv', index_col='ROWID',
-                     usecols=['ROWID','SenderPhone', 'Sender', 'text', 'month_name', 'day',                             'year', 'polarity','subjectivity', 'negativity', 'neutrality',                             'positivity', 'compound', 'date']
+                     usecols=['ROWID','SenderPhoneNumber', 'Sender', 'text', 'month_name', 'day','year', 'polarity','subjectivity', 'negativity', 'neutrality',                             'positivity', 'compound', 'date', 'word_count', 'timestamp']
                      )
     if author != None:
         df = df[df['author'] == author]
     if sort_by_date:
         df = df.sort_values('date')
-    return df.tail(tail_int).to_dict(orient='records')
+    if tail_int == None:
+        return df.to_dict(orient='records')
+    else:
+        return df.tail(tail_int).to_dict(orient='records')
 
 @main_bp.route('/', methods=['GET', 'POST'])
 @main_bp.route('/index', methods=['GET', 'POST'])
@@ -39,8 +42,16 @@ def home():
     """
     Home Route
     """
-    data = fetch_data()
+    data = fetch_data(tail_int=100)
     return render_template('index.html', data=data)
+
+@main_bp.route('/data-table', methods=['GET', 'POST'])
+def data_table():
+    """
+    Home Route
+    """
+    data = fetch_data(tail_int=None)
+    return render_template('data_table.html', data=data)
 
 @main_bp.route('/sms/{author}/{page}')
 def page(author, page):

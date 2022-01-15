@@ -1,0 +1,66 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<!-- Datatables css-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css">
+  <div class="container">
+      <div class="row">
+    <table class="table" id="data-table">
+        <thead>
+            <th scope="col">Sender Phone Number</th>
+            <th scope="col">Sender Name</th>
+            <th scope="col">Text</th>
+            <th scope="col">Recieved</th>
+            <th scope="col">Polarity</th>
+            <th scope="col">Subjectivity</th>
+            <th scope="col">negativity</th>
+            <th scope="col">neutrality</th>
+            <th scope="col">positivity</th>
+            <th scope="col">compound</th>
+            <th scope="col">Word Count</th>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td> {{ row.SenderPhoneNumber }} </td>
+                <td> {{ row.Sender}} </td>
+                <td> {{ row.text}} </td>
+                <td> {{ row.timestamp}} </td>
+                <td> {{ row.polarity}} </td>
+                <td> {{ row.subjectivity}} </td>
+                <td> {{ row.negativity}} </td>
+                <td> {{ row.neutrality}} </td>
+                <td> {{ row.positivity}} </td>
+                <td> {{ row.compound}} </td>
+                <td> {{ row.word_count}} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+   </div>
+  </div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.1.0/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.1.0/js/buttons.print.min.js"></script>
+<script>
+ $(document).ready( function () {
+     $('#data-table').DataTable({
+         dom: 'Bfrtip',
+         buttons:[
+             {
+                 extend:'csv',
+                 text: 'export to csv',
+                 filename: 'PoliticalSmsData.csv'
+             }
+         ]
+     });
+ } );
+</script>
+{% endblock %}
