@@ -29,8 +29,9 @@ def fetch_data(author=None, tail_int=10, sort_by_date=True):
                      )
     if author != None:
         df = df[df['author'] == author]
-    if sort_by_date:
-        df = df.sort_values('date')
+    if sort_by_date is True:
+        df = df.sort_values('timestamp', ascending=True)
+
     if tail_int == None:
         return df.to_dict(orient='records')
     else:
@@ -50,7 +51,7 @@ def data_table():
     """
     Home Route
     """
-    data = fetch_data(tail_int=None)
+    data = fetch_data(tail_int=None, sort_by_date=True)
     return render_template('data_table.html', data=data)
 
 @main_bp.route('/sms/{author}/{page}')
