@@ -9,6 +9,7 @@ class Config:
     FLASK_APP = os.environ.get('FLASK_APP')
     FLASK_ENV = os.environ.get('FLASK_ENV')
     DEBUG = os.environ.get('FLASK_DEBUG') or True
+    PYTHONPATH = os.environ.get('PYTHON_PATH')
 
     # Assets
     LESS_BIN = os.environ.get('LESS_BIN')

@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  web:
+    build: ./app
+    command: python manage.py run -h 0.0.0.0
+    volumes:
+      - ./app:/usr/src/app/
+    env_file:
+      - ./.env.dev
+    links:
+      - db 
+    ports:
+      - "5000:5000"
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db:/docker-entrypoin-initdb.d/:ro 

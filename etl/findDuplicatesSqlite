@@ -1,0 +1,7 @@
+SELECT * FROM sms 
+WHERE EXISTS (
+	SELECT 1 FROM sms s1 
+	WHERE sms.text = s1.text 
+	AND sms.SenderPhoneNumber = s1.SenderPhoneNumber
+	AND sms.SmsId > s1.SmsId
+);

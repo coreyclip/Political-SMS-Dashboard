@@ -19,6 +19,9 @@ from email.mime.image import MIMEImage
 from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from mimetypes import guess_type as guess_mime_type
+# local modules
+from sentiment_analysis import sms_features
+from upsert_to_sqlite import SqliteUpserter
 
 from dotenv import load_dotenv
 load_dotenv('../.env')
@@ -220,9 +223,12 @@ for msg in results:
             print('===' * 10)
             print(match)
             output.append({"date_sent": date_sent, "text":match})
-            pdb.set_trace()
+            sms_parts = sms_features(match, date_sent, search_sender)
+            upserter = SqliteUpserter(sms_parts)
+            upserter.main()
 
-    except:
+    except Exception as e:
+        raise e
         pdb.set_trace()
 
 now = dt.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
