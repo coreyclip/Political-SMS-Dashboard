@@ -1,5 +1,6 @@
 client_secret.json
 token.pickle
+etl/exports/gvoice_exports/*.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
