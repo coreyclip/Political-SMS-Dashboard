@@ -6,6 +6,7 @@ import pdb
 import datetime as dt
 import argparse 
 import sys
+import json
 # Gmail API utils
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -24,9 +25,9 @@ from sentiment_analysis import sms_features
 from upsert_to_sqlite import SqliteUpserter
 
 from dotenv import load_dotenv
-load_dotenv('../.env')
+load_dotenv('.env')
 
-sys.path.append(os.environ.get('PYTHON_PATH'))
+sys.path.append(os.environ.get('PYTHONPATH'))
 
 from config import Config
 
@@ -34,13 +35,16 @@ app_config = Config()
 # Request all access (permission to read/send/receive emails, manage the inbox, and more)
 SCOPES = ['https://mail.google.com/']
 our_email = app_config.FROM_EMAIL
-parser = argparse.ArgumentParser(description='pass sender number')
-parser.add_argument('--sender', type=str, required=True)
+parser = argparse.ArgumentParser(description='pass sender number, or all for every account defined in SenderMap')
+parser.add_argument('--sender', type=str, required=False)
 
 args = parser.parse_args()
-# search_sender = "88022"
 search_sender = args.sender
+if search_sender is None:
+    search_sender = 'all'
 
+with open('etl/SenderMap.json') as sender_map_file:
+    sender_map = json.load(sender_map_file)
 
 def gmail_authenticate():
     creds = None
@@ -61,7 +65,6 @@ def gmail_authenticate():
             pickle.dump(creds, token)
     return build('gmail', 'v1', credentials=creds)
 
-service = gmail_authenticate()
 
 def search_messages(service, query):
     result = service.users().messages().list(userId='me',q=query).execute()
@@ -205,36 +208,44 @@ def read_message(service, message, save_email=False):
     return text, date_sent
 
 
+def main(service, search_sender):
+    # get emails that match the query you specify
+    results = search_messages(service, search_sender)
+    # for each email matched, read it (output plain/text to console & save HTML and attachments)
 
-# get emails that match the query you specify
-results = search_messages(service, search_sender)
-# for each email matched, read it (output plain/text to console & save HTML and attachments)
+    text_re = re.compile(r"(?s)(?<=<https:\/\/voice\.google\.com>)(.*)(?=YOUR ACCOUNT)").search
 
-text_re = re.compile(r"(?s)(?<=<https:\/\/voice\.google\.com>)(.*)(?=YOUR ACCOUNT)").search
+    output = []
+    for msg in results:
+        try:
+            text, date_sent = read_message(service, msg)
+            search = text_re(text)
+            if search:
+                match = search.group(1)
+                print(f"date sent: {date_sent}")
+                print('===' * 10)
+                print(match)
+                output.append({"date_sent": date_sent, "text":match})
+                sms_parts = sms_features(match, date_sent, search_sender)
+                upserter = SqliteUpserter(sms_parts)
+                upserter.main()
 
-output = []
-for msg in results:
-    try:
-        text, date_sent = read_message(service, msg)
-        search = text_re(text)
-        if search:
-            match = search.group(1)
-            print(f"date sent: {date_sent}")
-            print('===' * 10)
-            print(match)
-            output.append({"date_sent": date_sent, "text":match})
-            sms_parts = sms_features(match, date_sent, search_sender)
-            upserter = SqliteUpserter(sms_parts)
-            upserter.main()
+        except Exception as e:
+            raise e
+            pdb.set_trace()
 
-    except Exception as e:
-        raise e
-        pdb.set_trace()
+    now = dt.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+    with open(f'etl/exports/gvoice_exports/{search_sender}_sms_backup_{now}.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['date_sent','sender', 'text'])
+        for row in output:
+            writer.writerow([row['date_sent'],search_sender, row['text']])
 
-now = dt.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
-with open(f'/export/{search_sender}_sms_backup_{now}.csv', 'w') as csv_file:
-    writer = csv.writer(csv_file)
-    writer.writerow(['date_sent','sender', 'text'])
-    for row in output:
-        writer.writerow([row['date_sent'],search_sender, row['text']])
+service = gmail_authenticate()
 
+if search_sender == 'all':
+    for number, name in sender_map.items():
+        print(f'Searching For messages from {name}')
+        main(service, number)
+else:
+    main(service, search_sender=search_sender)

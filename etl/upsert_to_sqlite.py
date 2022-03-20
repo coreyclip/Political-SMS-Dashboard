@@ -13,11 +13,18 @@ class SqliteUpserter:
         conn = None
         try:
             conn = sqlite3.connect(db_file)
-        except Error as e:
+        except Exception as e:
             print(e)
+            raise e 
 
         return conn
-
+    
+    def check_schema(self):
+        check_for_sms_table_sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='sms';"
+        cur = self.conn.cursor()
+        cur.execute(check_for_sms_table_sql)
+        return cur.fetchall()
+    
     def insert_sms_record(self):
         """
         Inserts record into sms table
@@ -37,7 +44,7 @@ class SqliteUpserter:
         sql = f'''
         SELECT Sender, text FROM sms
         WHERE SenderPhoneNumber = {self.sms.sender_phone}
-        AND text = "{self.}"
+        AND text = "{self.text}"
         '''
 
         cur = self.conn.cursor()
