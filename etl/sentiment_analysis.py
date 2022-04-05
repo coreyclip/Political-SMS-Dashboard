@@ -5,14 +5,17 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import os 
 import json 
 
-with open('etl/SenderMap.json') as sender_map_file:
+with open('SenderMap.json') as sender_map_file:
     sender_map = json.load(sender_map_file)
 
 
 class sms_features:
     def __init__(self, text, timestamp, sender):
         self.text = str(text).replace('corey', "<recipient name>")
-        self.received = dt.datetime.strptime(timestamp, "%a, %d %b %Y %H:%M:%S %z")
+        if isinstance(timestamp, dt.datetime):
+            self.received = timestamp
+        else:
+            self.received = dt.datetime.strptime(timestamp, "%a, %d %b %Y %H:%M:%S %z")
         self.sender_phone = sender
         self.sender_map = sender_map
         self.sender_name = self.sender_map[self.sender_phone]

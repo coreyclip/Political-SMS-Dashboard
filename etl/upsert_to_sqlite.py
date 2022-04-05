@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 class SqliteUpserter:
     def __init__(self, sms, sqlite_db_filepath='sms.db'):
@@ -30,13 +31,32 @@ class SqliteUpserter:
         Inserts record into sms table
         """
         sms = self.sms
+        text = json.dumps(sms.text) \
+                          .replace('"', '') \
+                          .replace("'", "\'")
         sql = f'''
         INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity, compound, nouns, tags)
-        VALUES({sms.sender_phone},{sms.sender_name},{sms.text}, {sms.received.strftime('%c')}, {sms.month_name}, {sms.day_name}, {sms.day}, {sms.hour}, {sms.weekday}, {sms.week}, {sms.year}, {sms.polarity}, {sms.subjectivity}, {sms.negativity}, {sms.neutrality}, {sms.positivity}, {sms.compound}, {sms.nouns}, {sms.tags})
+        VALUES({sms.sender_phone},"{sms.sender_name}","{text}", "{sms.received.strftime('%c')}", "{sms.month_name}", "{sms.day_name}", "{sms.day}", "{sms.hour}", "{sms.weekday}", "{sms.week}", "{sms.year}", "{sms.polarity}", "{sms.subjectivity}", "{sms.negativity}", "{sms.neutrality}", "{sms.positivity}", "{sms.compound}", "{sms.nouns}", "{sms.tags}")
         '''
         cur = self.conn.cursor()
-        cur.execute(sql)
-        self.conn.commit()
+        try:
+            cur.execute(sql)
+            self.conn.commit()
+        except Exception as e:
+            error = str(e)
+            error_msg = f"""
+            failed to execute this sql statement:
+            ---------------
+            {sql}
+            ---------------
+
+            error: {error}
+            """
+            print(error_msg)
+            import pdb; pdb.set_trace() 
+            raise e
+
+
 
         return cur.lastrowid
 
@@ -44,7 +64,7 @@ class SqliteUpserter:
         sql = f'''
         SELECT Sender, text FROM sms
         WHERE SenderPhoneNumber = {self.sms.sender_phone}
-        AND text = "{self.text}"
+        AND text = "{self.sms.text}"
         '''
 
         cur = self.conn.cursor()
@@ -63,6 +83,6 @@ class SqliteUpserter:
         """
         record_exists = self.check_for_existing_record()
         if record_exists:
-            print(f"Record Already Exists: {self.sms}")
+            print(f"Record Already Exists: {self.sms.text }")
         else:
             self.insert_sms_record()
