@@ -31,13 +31,9 @@ class SqliteUpserter:
         Inserts record into sms table
         """
         sms = self.sms
-        text = json.dumps(sms.text) \
-                          .replace('"', '') \
-                          .replace("'", "\'")
-        sql = f'''
-        INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity, compound, nouns, tags)
-        VALUES({sms.sender_phone},"{sms.sender_name}","{text}", "{sms.received.strftime('%c')}", "{sms.month_name}", "{sms.day_name}", "{sms.day}", "{sms.hour}", "{sms.weekday}", "{sms.week}", "{sms.year}", "{sms.polarity}", "{sms.subjectivity}", "{sms.negativity}", "{sms.neutrality}", "{sms.positivity}", "{sms.compound}", "{sms.nouns}", "{sms.tags}")
-        '''
+        text = json.dumps(sms.text).replace('"', '') 
+        sql = f"""INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity, compound, nouns, tags) VALUES({sms.sender_phone},'{sms.sender_name}','{text}', '{sms.received.strftime('%c')}', '{sms.month_name}', '{sms.day_name}', '{sms.day}', '{sms.hour}', '{sms.weekday}','{sms.week}', '{sms.year}', '{sms.polarity}', '{sms.subjectivity}', '{sms.negativity}', '{sms.neutrality}', '{sms.positivity}', '{sms.compound}', NULL, NULL)
+        """
         cur = self.conn.cursor()
         try:
             cur.execute(sql)
