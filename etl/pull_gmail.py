@@ -2,7 +2,6 @@ import os
 import pickle
 import re
 import csv
-import pdb
 import datetime as dt
 import argparse 
 import sys
@@ -27,14 +26,11 @@ from upsert_to_sqlite import SqliteUpserter
 from dotenv import load_dotenv
 load_dotenv('.env')
 
-sys.path.append(os.environ.get('PYTHONPATH'))
+sys.path.append("..")
 
-from config import Config
-
-app_config = Config()
 # Request all access (permission to read/send/receive emails, manage the inbox, and more)
 SCOPES = ['https://mail.google.com/']
-our_email = app_config.FROM_EMAIL
+our_email = os.environ.get('FROM_EMAIL')
 parser = argparse.ArgumentParser(description='pass sender number, or all for every account defined in SenderMap')
 parser.add_argument('--sender', type=str, required=False)
 
