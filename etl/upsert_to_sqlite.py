@@ -1,7 +1,8 @@
 import sqlite3
+import pandas as pd
 
 class SqliteUpserter:
-    def __init__(self, sms, sqlite_db_filepath='sms.db'):
+    def __init__(self, sms, sqlite_db_filepath='etl/sms.db'):
         self.sms = sms
         self.conn = self.create_connection(sqlite_db_filepath)
     def create_connection(self, db_file):
@@ -31,15 +32,50 @@ class SqliteUpserter:
         """
         sms = self.sms
         sql = f'''
-        INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity, compound, nouns, tags)
-        VALUES({sms.sender_phone},{sms.sender_name},{sms.text}, {sms.received.strftime('%c')}, {sms.month_name}, {sms.day_name}, {sms.day}, {sms.hour}, {sms.weekday}, {sms.week}, {sms.year}, {sms.polarity}, {sms.subjectivity}, {sms.negativity}, {sms.neutrality}, {sms.positivity}, {sms.compound}, {sms.nouns}, {sms.tags})
+        INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity,
+        compound, nouns, tags)
+        VALUES("{sms.sender_phone}","{sms.sender_name}","{sms.text}", "{sms.received.strftime('%c')}", "{sms.month_name}", "{sms.day_name}", "{sms.day}", "{sms.hour}", "{sms.weekday}",
+        "{sms.week}", "{sms.year}", "{sms.polarity}", "{sms.subjectivity}", "{sms.negativity}", "{sms.neutrality}", "{sms.positivity}", "{sms.compound}", "{sms.nouns}", "{sms.tags}")
         '''
         cur = self.conn.cursor()
-        cur.execute(sql)
+        try:
+            cur.execute(sql)
+        except Exception as e:
+            print(f"failed to execute: {sql}")
+            self.insert_sms_record_pandas()
+            raise e
         self.conn.commit()
 
         return cur.lastrowid
 
+    def insert_sms_record_pandas(self):
+        sms = self.sms
+        df = pd.dataframe(
+                {
+
+                    "SenderPhoneNumber": sms.sender_phone,
+                    "Sender": sms.sender_name,
+                    "text": sms.text,
+                    "timestamp": sms.received.strftime('%c'), 
+                    "month_name": sms.month_name, 
+                    "day_name": sms.day_name,
+                    "day": sms.day, 
+                    "hour": sms.hour, 
+                    "weekday": sms.weekday, 
+                    "week": sms.week, 
+                    "year": sms.year, 
+                    "polarity": sms.polarity, 
+                    "subjectivity": sms.subjectivity, 
+                    "negativity": sms.negativity, 
+                    "neutrality": sms.neutrality, 
+                    "positivity": sms.positivity,
+                    "compound": sms.compound, 
+                    "nouns": sms.nouns, 
+                    "tags": sms.tags
+
+                }
+            )
+        df.to_sql('sms', self.conn, if_exists='append', index=False)
     def check_for_existing_record(self):
         sql = f'''
         SELECT Sender, text FROM sms

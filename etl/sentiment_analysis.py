@@ -12,7 +12,10 @@ with open('etl/SenderMap.json') as sender_map_file:
 class sms_features:
     def __init__(self, text, timestamp, sender):
         self.text = str(text).replace('corey', "<recipient name>")
-        self.received = dt.datetime.strptime(timestamp, "%a, %d %b %Y %H:%M:%S %z")
+        if isinstance(timestamp, str):
+            self.received = dt.datetime.strptime(timestamp, "%a, %d %b %Y %H:%M:%S %z")
+        else:
+            self.received = timestamp
         self.sender_phone = sender
         self.sender_map = sender_map
         self.sender_name = self.sender_map[self.sender_phone]

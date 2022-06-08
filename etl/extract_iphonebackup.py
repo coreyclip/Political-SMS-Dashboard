@@ -5,10 +5,13 @@ import pandas as pd
 from sentiment_analysis import sms_features
 from upsert_to_sqlite import SqliteUpserter
 
-def load_iphonebackup(iphone_sms_sqlite_db_fp='exports/iphone_backups/3d0d7e5fb2ce288813306e4d4636395e047a3d28'):
-    with open('SenderMap.json') as json_file:
+sys.path.append('..')
+sys.path.append('etl/SenderMap.json')
+
+def load_iphonebackup(iphone_sms_sqlite_db_fp='etl/exports/iphone_backups/3d0d7e5fb2ce288813306e4d4636395e047a3d28'):
+    with open('etl/SenderMap.json') as json_file:
         sender_map = json.load(json_file)
-    with open('transform/extract_from_iphone_backup.sql') as file:
+    with open('etl/transform/extract_from_iphone_backup.sql') as file:
         script = file.read()
     sender_list = ','.join(sender_map.keys())
     sql = script.replace('<list>', sender_list)
