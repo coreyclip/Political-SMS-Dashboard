@@ -100,6 +100,6 @@ class SqliteUpserter:
         """
         record_exists = self.check_for_existing_record()
         if record_exists:
-            print(f"Record Already Exists: {record_exists}")
+            print(f"Record Already Exists")
         else:
             self.insert_sms_record()

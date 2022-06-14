@@ -234,6 +234,8 @@ def main(service, search_sender):
             raise e
 
     now = dt.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+    if not os.path.exists('etl/exports/gvoice_exports'):
+        os.mkdir('etl/exports/gvoice_exports')
     with open(f'etl/exports/gvoice_exports/{search_sender}_sms_backup_{now}.csv', 'w') as csv_file:
         writer = csv.writer(csv_file)
         writer.writerow(['date_sent','sender', 'text'])

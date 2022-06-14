@@ -1,8 +1,8 @@
 client_secret.json
-etl/credentials.json 
-etl/exports/iphone_backup/*
-token.pickle
-etl/exports/gvoice_exports/*.csv
+./etl/credentials.json 
+./etl/exports/iphone_backup/*
+./etl/token.pickle
+./etl/exports/gvoice_exports/*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
