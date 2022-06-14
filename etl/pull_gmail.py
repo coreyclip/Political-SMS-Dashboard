@@ -26,11 +26,8 @@ from upsert_to_sqlite import SqliteUpserter
 from dotenv import load_dotenv
 load_dotenv('.env')
 
-sys.path.append("..")
-
 # Request all access (permission to read/send/receive emails, manage the inbox, and more)
 SCOPES = ['https://mail.google.com/']
-our_email = os.environ.get('FROM_EMAIL')
 parser = argparse.ArgumentParser(description='pass sender number, or all for every account defined in SenderMap')
 parser.add_argument('--sender', type=str, required=False)
 
@@ -46,20 +43,27 @@ def gmail_authenticate():
     creds = None
     # the file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first time
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
+    if os.path.exists("etl/token.pickle"):
+        with open("etl/token.pickle", "rb") as token:
             creds = pickle.load(token)
     # if there are no (valid) credentials availablle, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                creds = generate_creds()
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = generate_creds()
         # save the credentials for the next run
-        with open("token.pickle", "wb") as token:
+        with open("etl/token.pickle", "wb") as token:
             pickle.dump(creds, token)
     return build('gmail', 'v1', credentials=creds)
+
+def generate_creds():
+    flow = InstalledAppFlow.from_client_secrets_file('etl/credentials.json', SCOPES)
+    creds = flow.run_local_server(port=0)
+    return creds 
 
 
 def search_messages(service, query):
@@ -228,7 +232,6 @@ def main(service, search_sender):
 
         except Exception as e:
             raise e
-            pdb.set_trace()
 
     now = dt.datetime.now().strftime("%m-%d-%Y %H:%M:%S")
     with open(f'etl/exports/gvoice_exports/{search_sender}_sms_backup_{now}.csv', 'w') as csv_file:

@@ -39,3 +39,7 @@ file location within iphone backup: https://osxdaily.com/2010/07/08/read-iphone-
 
 tutorial for TextBlob: https://rwet.decontextualize.com/book/textblob/
 
+backup command 
+''''
+idevicebackup2 backup myfolder
+''''

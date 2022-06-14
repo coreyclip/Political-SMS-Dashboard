@@ -34,12 +34,13 @@ class SqliteUpserter:
         sql = f'''
         INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity,
         compound, nouns, tags)
-        VALUES("{sms.sender_phone}","{sms.sender_name}","{sms.text}", "{sms.received.strftime('%c')}", "{sms.month_name}", "{sms.day_name}", "{sms.day}", "{sms.hour}", "{sms.weekday}",
-        "{sms.week}", "{sms.year}", "{sms.polarity}", "{sms.subjectivity}", "{sms.negativity}", "{sms.neutrality}", "{sms.positivity}", "{sms.compound}", "{sms.nouns}", "{sms.tags}")
-        '''
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+
+        values = (sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.day, sms.hour, sms.weekday,
+                  sms.week, sms.year, sms.polarity, sms.subjectivity, sms.negativity, sms.neutrality, sms.positivity, sms.compound, sms.nouns, sms.tags)
         cur = self.conn.cursor()
         try:
-            cur.execute(sql)
+            cur.execute(sql, values)
         except Exception as e:
             print(f"failed to execute: {sql}")
             self.insert_sms_record_pandas()
@@ -80,25 +81,25 @@ class SqliteUpserter:
         sql = f'''
         SELECT Sender, text FROM sms
         WHERE SenderPhoneNumber = {self.sms.sender_phone}
-        AND text = "{self.text}"
+        AND text =:sms
         '''
-
+        sms_text = self.sms.text
         cur = self.conn.cursor()
         try:
-            results = cur.execute(sql)
+            results = cur.execute(sql, {"sms":sms_text})
         except Exception as e:
             print(sql)
             raise e
         if len(results.fetchall()) > 0:
             return False
         else:
-            return True
+            return results
     def main(self):
         """
         method: inserts sms record if not duplicate
         """
         record_exists = self.check_for_existing_record()
         if record_exists:
-            print(f"Record Already Exists: {self.sms}")
+            print(f"Record Already Exists: {record_exists}")
         else:
             self.insert_sms_record()
