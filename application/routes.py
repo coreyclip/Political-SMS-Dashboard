@@ -5,6 +5,7 @@ import sys
 import json
 import codecs
 import pandas as pd
+import sqlite3
 from datetime import datetime as dt
 from flask import Blueprint, render_template, flash, redirect, url_for, g, request, current_app
 from flask_assets import Environment, Bundle
@@ -22,13 +23,29 @@ def not_found_error(error):
 def internal_error(error):
     return render_template('500.html'), 500
 
-def fetch_data(author=None, tail_int=10, sort_by_date=True):
+def fetch_data(author=None, source='sqlite', tail_int=10, sort_by_date=True):
+    '''
+    default source is sqlite else old csv file
+    '''
 
-    df = pd.read_csv('./application/data/ProcessedTexts.csv', index_col='ROWID',
-                     usecols=['ROWID','SenderPhoneNumber', 'Sender', 'text', 'month_name', 'day','year', 'polarity','subjectivity', 'negativity', 'neutrality',                             'positivity', 'compound', 'date', 'word_count', 'timestamp']
-                     )
-    if author != None:
-        df = df[df['author'] == author]
+    if source == 'sqlite':
+        conn = sqlite3.connect('./etl/sms.db')
+        if author is not None:
+            query = f"SELECT * FROM sms WHERE Sender = {author}"
+        else:
+            query = "SELECT * FROM sms"
+        df = pd.read_sql(query, conn)
+
+    else:
+        df = pd.read_csv('./application/data/ProcessedTexts.csv', index_col='ROWID',
+                        usecols=['ROWID','SenderPhoneNumber', 'Sender', 'text', 'month_name',
+                                 'day','year', 'polarity','subjectivity', 'negativity', 'neutrality',
+                                 'positivity', 'compound', 'date', 'word_count', 'timestamp'
+                                 ]
+                        )
+        if author != None:
+            df = df[df['author'] == author]
+
     if sort_by_date is True:
         df = df.sort_values('timestamp', ascending=True)
 
@@ -44,7 +61,7 @@ def home():
     Home Route
     """
     data = fetch_data(tail_int=100)
-    return render_template('index.html', data=data)
+    return render_template('index.html', data=data, author="Everyone")
 
 @main_bp.route('/data-table', methods=['GET', 'POST'])
 def data_table():
@@ -54,7 +71,8 @@ def data_table():
     data = fetch_data(tail_int=None, sort_by_date=True)
     return render_template('data_table.html', data=data)
 
-@main_bp.route('/sms/{author}/{page}')
+@main_bp.route('/{sender}')
 def page(author, page):
-    payload = f'{author}/{page}'
-    return render_template('sms.html', payload=payload)
+    author = sender.replace('_', ' ') 
+    data = fetch_data(author=author, tail_int=100)
+    return render_template('index.html', data=data, author=sender)
