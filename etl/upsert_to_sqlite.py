@@ -32,11 +32,11 @@ class SqliteUpserter:
         """
         sms = self.sms
         sql = f'''
-        INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity,
+        INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, month, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity,
         compound, nouns, tags)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
-        values = (sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.day, sms.hour, sms.weekday,
+        values = (sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.month, sms.day, sms.hour, sms.weekday,
                   sms.week, sms.year, sms.polarity, sms.subjectivity, sms.negativity, sms.neutrality, sms.positivity, sms.compound, sms.nouns, sms.tags)
         cur = self.conn.cursor()
         try:

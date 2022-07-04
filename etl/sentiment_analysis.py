@@ -30,6 +30,7 @@ class sms_features:
     def parse_dates(self):
         ts = self.received
         self.month_name = ts.strftime("%B") #September
+        self.month = ts.strftime("%m") # 01
         self.day_name = ts.strftime("%A")#Tuesday
         self.day = ts.strftime('%d') #15
         self.hour = ts.strftime('%H') #13
