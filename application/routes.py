@@ -6,6 +6,7 @@ import json
 import codecs
 import pandas as pd
 import sqlite3
+from dateutil.relativedelta import relativedelta
 from datetime import datetime as dt
 from flask import Blueprint, render_template, flash, redirect, url_for, g, request, current_app
 from flask_assets import Environment, Bundle
@@ -23,7 +24,39 @@ def not_found_error(error):
 def internal_error(error):
     return render_template('500.html'), 500
 
-def fetch_data(author=None, source='sqlite', tail_int=10, sort_by_date=True):
+def add_sqlite_date_filter(query, date, since_month=True, since_day=False):
+    '''
+    adds a date filter to a query against the sms database
+    params:
+     query: sqlite query
+     date: expected format is %y-%B-%d 
+    TODO function does not really work with string months need to
+    add month in int format to get this to work
+    '''
+    date_parts = date.split('-')
+    year = date_parts[0]
+    month = date_parts[1]
+    day = date_parts[2]
+
+    if "WHERE" in query:
+        date_filter = f"""
+        AND year = {year}
+        """
+    else:
+        date_filter = f"""
+         WHERE year = {year}
+        """
+    
+    if since_month:
+        date_filter = date_filter + f' AND month_name = "{month}" '
+    if since_day:
+        date_filter = date_filter + f' AND day >= {day}'
+    return query + date_filter
+
+
+
+def fetch_data(author=None, source='sqlite', tail_int=10,
+               date_filter=dt.now().strftime('%Y-%B-%d'), sort_by_date=True):
     '''
     default source is sqlite else old csv file
     '''
@@ -34,6 +67,7 @@ def fetch_data(author=None, source='sqlite', tail_int=10, sort_by_date=True):
             query = f"SELECT * FROM sms WHERE Sender = {author}"
         else:
             query = "SELECT * FROM sms"
+        print(f"executing query: {query}")
         df = pd.read_sql(query, conn)
 
     else:
@@ -60,7 +94,8 @@ def home():
     """
     Home Route
     """
-    data = fetch_data(tail_int=100)
+    three_months_ago = dt.today() - relativedelta(months=3)
+    data = fetch_data(tail_int=100, date_filter=three_months_ago.strftime('%Y-%B-%d'))
     return render_template('index.html', data=data, author="Everyone")
 
 @main_bp.route('/data-table', methods=['GET', 'POST'])

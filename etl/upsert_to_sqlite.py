@@ -1,9 +1,11 @@
 import sqlite3
 import pandas as pd
+from datetime import datetime as dt
 
 class SqliteUpserter:
-    def __init__(self, sms, sqlite_db_filepath='etl/sms.db'):
+    def __init__(self, sms, debug=False, sqlite_db_filepath='etl/sms.db'):
         self.sms = sms
+        self.debug= debug
         self.conn = self.create_connection(sqlite_db_filepath)
     def create_connection(self, db_file):
         """ create a database connection to the SQLite database
@@ -37,15 +39,22 @@ class SqliteUpserter:
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
         values = (sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.month, sms.day, sms.hour, sms.weekday,
-                  sms.week, sms.year, sms.polarity, sms.subjectivity, sms.negativity, sms.neutrality, sms.positivity, sms.compound, sms.nouns, sms.tags)
-        cur = self.conn.cursor()
+                  sms.week, sms.year, sms.polarity, sms.subjectivity, sms.negativity, sms.neutrality, sms.positivity, sms.compound, str(sms.nouns), str(sms.tags))
+        if self.debug:
+            import pdb; pdb.set_trace()
         try:
+            con = self.conn
+            cur = self.conn.cursor()
             cur.execute(sql, values)
+            # TODO set up logging
+            print(f"{dt.now().strftime('%Y-%m-%d %HH:%M')} Inserted record:")
+            print(values)
         except Exception as e:
             print(f"failed to execute: {sql}")
-            self.insert_sms_record_pandas()
+            if self.debug:
+                import pdb; pdb.set_trace()
             raise e
-        self.conn.commit()
+        con.commit()
 
         return cur.lastrowid
 
@@ -80,20 +89,32 @@ class SqliteUpserter:
     def check_for_existing_record(self):
         sql = f'''
         SELECT Sender, text FROM sms
-        WHERE SenderPhoneNumber = {self.sms.sender_phone}
-        AND text =:sms
+        WHERE SenderPhoneNumber = :Sender
+        AND text = :sms
+        AND year = :year
+        AND day = :day
+        AND month = :month
         '''
-        sms_text = self.sms.text
         cur = self.conn.cursor()
         try:
-            results = cur.execute(sql, {"sms":sms_text})
+            results = cur.execute(sql, {"Sender": self.sms.sender_phone,
+                                        "sms":self.sms.text,
+                                        "year": self.sms.year,
+                                        "day": self.sms.day,
+                                        "month": self.sms.month}
+                                  )
         except Exception as e:
             print(sql)
             raise e
-        if len(results.fetchall()) > 0:
-            return False
+        query_results = results.fetchall()
+        if self.debug:
+            import pdb; pdb.set_trace()
+        if len(query_results) >= 1:
+            return True
+            print(f"found record: {query_results}")
         else:
-            return results
+            return False
+
     def main(self):
         """
         method: inserts sms record if not duplicate

@@ -30,9 +30,12 @@ load_dotenv('.env')
 SCOPES = ['https://mail.google.com/']
 parser = argparse.ArgumentParser(description='pass sender number, or all for every account defined in SenderMap')
 parser.add_argument('--sender', type=str, required=False)
+parser.add_argument('--debug', action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 search_sender = args.sender
+debug = args.debug
+
 if search_sender is None:
     search_sender = 'all'
 
@@ -68,6 +71,8 @@ def generate_creds():
 
 def search_messages(service, query):
     result = service.users().messages().list(userId='me',q=query).execute()
+    if debug:
+        import pdb; pdb.set_trace()
     messages = [ ]
     if 'messages' in result:
         messages.extend(result['messages'])
@@ -214,11 +219,12 @@ def main(service, search_sender):
     # for each email matched, read it (output plain/text to console & save HTML and attachments)
 
     text_re = re.compile(r"(?s)(?<=<https:\/\/voice\.google\.com>)(.*)(?=YOUR ACCOUNT)").search
-
     output = []
     for msg in results:
         try:
             text, date_sent = read_message(service, msg)
+            if debug:
+                import pdb; pdb.set_trace()
             search = text_re(text)
             if search:
                 match = search.group(1)
@@ -227,7 +233,7 @@ def main(service, search_sender):
                 print(match)
                 output.append({"date_sent": date_sent, "text":match})
                 sms_parts = sms_features(match, date_sent, search_sender)
-                upserter = SqliteUpserter(sms_parts)
+                upserter = SqliteUpserter(sms_parts, debug=debug)
                 upserter.main()
 
         except Exception as e:
