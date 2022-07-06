@@ -1,6 +1,6 @@
 DROP TABLE sms_backup;
 CREATE TABLE "sms_backup" (
-	"SmsId"	INTEGER,
+	"SmsId"	INTEGER PRIMARY KEY AUTOINCREMENT,
 	"SenderPhoneNumber"	INTEGER,
 	"Sender"	TEXT,
 	"text"	TEXT,
