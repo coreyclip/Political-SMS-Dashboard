@@ -36,9 +36,9 @@ class SqliteUpserter:
         sql = f'''
         INSERT INTO sms(SenderPhoneNumber, Sender, text, timestamp, month_name, day_name, month, day, hour, weekday, week, year, polarity, subjectivity, negativity, neutrality, positivity,
         compound, nouns, tags)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
-        values = ('NULL', sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.month, sms.day, sms.hour, sms.weekday,
+        values = (sms.sender_phone, sms.sender_name, sms.text,sms.received.strftime('%c'), sms.month_name, sms.day_name, sms.month, sms.day, sms.hour, sms.weekday,
                   sms.week, sms.year, sms.polarity, sms.subjectivity, sms.negativity, sms.neutrality, sms.positivity, sms.compound, str(sms.nouns), str(sms.tags))
         if self.debug:
             import pdb; pdb.set_trace()
