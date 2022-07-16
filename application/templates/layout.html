@@ -4,10 +4,15 @@
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
+<!-- JQuery cdn -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-<link rel="stylesheet" href="static/css/Flat-UI-master/app/css/flat-ui.css">
+<!-- minify -->
+<link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 
 </head>
 <body>
@@ -21,7 +26,9 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Political SMS Campaigns</a>
+            <a class="navbar-brand" href="#">
+                <h1>Political SMS Campaigns</h1>
+            </a>
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -29,25 +36,32 @@
               <li><a href="https://github.com/coreyclip/Political-SMS-Dashboard">About</a></li>
               <li><a href="mailto:coreyclip@gmail.com">Contact</a></li>
               <li><a href="/data-table">Table</a></li>
-            </ul>
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Political Campaigns
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="/Trump">Trump</a>
-                    <a class="dropdown-item" href="/Warnock">Raphael Warnock</a>
-                    <a class="dropdown-item" href="/RNC">Republican National Committee</a>
-                    <a class="dropdown-item" href="/DNC">Democratic National Committee</a>
-                    <a class="dropdown-item" href="/Peoples_Convoy">Peoples Convoy</a>
-                    <a class="dropdown-item" href="/DCCC">Democratic Congressional Campaign Committee</a>
-                    <a class="dropdown-item" href="/Ron_DeSantis">Ron DeSantis</a>
-                    <a class="dropdown-item" href="/AOC">Alexandra Ocasio-Cortez</a>
-                </div>
             </div>
+            </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </nav>
+      <div class="container">
+      <section class="nes-container with-title">
+          <h3 class="title">
+              <label for="campaign-select">Individual Campaigns</label></h3>
+
+          <div class="nes-select is-warning">
+              <select id="campaign-select" required="">
+                  <option>Everyone</option>
+                  <option><a href="/Trump">Trump</a></option>
+                  <option><a href="/Warnock">Raphael Warnock</a></option>
+                  <option><a href="/Peoples_Convoy">Peoples Convoy</a></option>
+                  <option><a href="/DCCC">Democratic Congressional Campaign Committee</a></option>
+                 <option><a href="/Ron_DeSantis">Ron DeSantis</a></option>
+                 <option><a href="/AOC">Alexandra Ocasio-Cortez</a></option>
+                 <option><a href="/RNC">Republican National Committee</a></option>
+                 <option><a href="/DNC">Democratic National Committee</a></option>
+              </select>
+                  </div>
+                  <button type="button" class="nes-btn is-primary showcode">go</button>
+      </section>
+      </div>
 
       {% block content %}{% endblock %}
 

@@ -1,0 +1,9 @@
+@font-face{
+    font-family: pixel;
+    src: url('fonts/PressStart2P-Regular.ttf');
+    font-weight: bold;}
+
+body {font-family: pixel; color:black}
+
+button {
+}
