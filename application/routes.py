@@ -11,6 +11,7 @@ from datetime import datetime as dt
 from flask import Blueprint, render_template, flash, redirect, url_for, g, request, current_app
 from flask_assets import Environment, Bundle
 from flask import current_app as app
+from application.forms import SearchForm
 
 main_bp = Blueprint('main_bp', __name__,
                     template_folder='templates',
@@ -95,9 +96,10 @@ def home():
     """
     Home Route
     """
+    form = SearchForm()
     three_months_ago = dt.today() - relativedelta(months=3)
     data = fetch_data(tail_int=100, date_filter=three_months_ago.strftime('%Y-%B-%d'))
-    return render_template('index.html', data=data, author="from Everyone")
+    return render_template('index.html', data=data, author="from Everyone", form=form)
 
 @main_bp.route('/data-table', methods=['GET', 'POST'])
 def data_table():
@@ -109,6 +111,7 @@ def data_table():
 
 @main_bp.route('/<sender>')
 def page(sender):
+    form = SearchForm()
     author = sender.replace('_', ' ') 
     data = fetch_data(author=author, tail_int=100)
-    return render_template('index.html', data=data, author=sender)
+    return render_template('index.html', data=data, author=sender, form=form)

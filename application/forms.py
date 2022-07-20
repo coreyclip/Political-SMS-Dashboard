@@ -1,0 +1,18 @@
+from flask_wtf import FlaskForm
+from wtforms import SelectField, SubmitField
+from wtforms.validators import DataRequired
+
+class SearchForm(FlaskForm):
+    author = SelectField('Campaign',
+                         choices=[
+                             ('Trump','Donald Trump'),
+                             ('Warnock', 'Raphael Warnock'),
+                             ('Ron_DeSantis','Ron DeSantis'),
+                             ('AOC','Alexandra Ocasio-Cortez' ),
+                             ('RNC', 'Republican National Committee'),
+                             ('DCCC', 'Democratic Congressional Campaign Committee'),
+                             ('DNC','Democratic National Committee'),
+                             ('Peoples_Convoy', 'Peoples Convoy')
+                         ],
+                         validators=[DataRequired()])
+    submit = SubmitField('Go')

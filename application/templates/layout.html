@@ -35,19 +35,12 @@
               <label for="campaign-select">Individual Campaigns</label></h3>
 
           <div class="nes-select is-warning">
-              <select id="campaign-select" required="">
-                  <option>Everyone</option>
-                  <option><a href="/Trump">Trump</a></option>
-                  <option><a href="/Warnock">Raphael Warnock</a></option>
-                  <option><a href="/Peoples_Convoy">Peoples Convoy</a></option>
-                  <option><a href="/DCCC">Democratic Congressional Campaign Committee</a></option>
-                 <option><a href="/Ron_DeSantis">Ron DeSantis</a></option>
-                 <option><a href="/AOC">Alexandra Ocasio-Cortez</a></option>
-                 <option><a href="/RNC">Republican National Committee</a></option>
-                 <option><a href="/DNC">Democratic National Committee</a></option>
-              </select>
+              <!-- <select id="campaign-select" required=""> -->
+                  {{ form.author(id='campaign-select') }}
+              <!-- </select> -->
                   </div>
-                  <button type="button" class="nes-btn is-primary showcode">go</button>
+                  {{ form.submit(class="nes-btn is-primary showcode mt-3") }}
+                  <!-- <button type="button" class="nes-btn is-primary showcode">go</button> -->
       </section>
       </div>
 
@@ -58,3 +51,4 @@
 
 </body>
 </html>
+
