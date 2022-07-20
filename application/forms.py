@@ -5,6 +5,7 @@ from wtforms.validators import DataRequired
 class SearchForm(FlaskForm):
     author = SelectField('Campaign',
                          choices=[
+                             ('Everyone', 'All Campaigns on Record'),
                              ('Trump','Donald Trump'),
                              ('Warnock', 'Raphael Warnock'),
                              ('Ron_DeSantis','Ron DeSantis'),

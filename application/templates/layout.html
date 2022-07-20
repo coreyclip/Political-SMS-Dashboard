@@ -35,12 +35,12 @@
               <label for="campaign-select">Individual Campaigns</label></h3>
 
           <div class="nes-select is-warning">
-              <!-- <select id="campaign-select" required=""> -->
+              <form action="" method="post" novalidate>
+                  {{ form.hidden_tag() }}
                   {{ form.author(id='campaign-select') }}
-              <!-- </select> -->
                   </div>
-                  {{ form.submit(class="nes-btn is-primary showcode mt-3") }}
-                  <!-- <button type="button" class="nes-btn is-primary showcode">go</button> -->
+                  {{ form.submit(class="nes-btn is-primary showcode mt-3 " ) }}
+              </form>
       </section>
       </div>
 

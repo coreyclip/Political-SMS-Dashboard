@@ -56,7 +56,7 @@ def add_sqlite_date_filter(query, date, since_month=True, since_day=False):
 
 
 
-def fetch_data(author=None, source='sqlite', tail_int=10,
+def fetch_data(author=None, source='sqlite', top=10,
                date_filter=dt.now().strftime('%Y-%B-%d'), sort_by_date=True):
     '''
     default source is sqlite else old csv file
@@ -83,12 +83,11 @@ def fetch_data(author=None, source='sqlite', tail_int=10,
 
     if sort_by_date is True:
         df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df = df.sort_values('timestamp', ascending=True)
-
-    if tail_int == None:
+        df = df.sort_values(by='timestamp', ascending=False)
+    if top == None:
         return df.to_dict(orient='records')
     else:
-        return df.tail(tail_int).to_dict(orient='records')
+        return df.head(top).to_dict(orient='records')
 
 @main_bp.route('/', methods=['GET', 'POST'])
 @main_bp.route('/index', methods=['GET', 'POST'])
@@ -97,8 +96,17 @@ def home():
     Home Route
     """
     form = SearchForm()
+    if form.validate_on_submit():
+        author = form.author.data
+        print(f"form submited for {author}")
+        if author == 'Everyone':
+            return redirect('/')
+        else:
+            return redirect(f'/{author}')
+    else:
+        print(form.validate_on_submit())
     three_months_ago = dt.today() - relativedelta(months=3)
-    data = fetch_data(tail_int=100, date_filter=three_months_ago.strftime('%Y-%B-%d'))
+    data = fetch_data(top=50, date_filter=three_months_ago.strftime('%Y-%B-%d'))
     return render_template('index.html', data=data, author="from Everyone", form=form)
 
 @main_bp.route('/data-table', methods=['GET', 'POST'])
@@ -106,12 +114,21 @@ def data_table():
     """
     Home Route
     """
-    data = fetch_data(tail_int=None, sort_by_date=True)
+    data = fetch_data(top=None, sort_by_date=True)
     return render_template('data_table.html', data=data)
 
-@main_bp.route('/<sender>')
+@main_bp.route('/<sender>', methods=['GET', 'POST'])
 def page(sender):
     form = SearchForm()
+    if form.validate_on_submit():
+        author = form.author.data
+        print(f"form submited for {author}")
+        if author == 'Everyone':
+            return redirect('/')
+        else:
+            return redirect(f'/{author}')
+    else:
+        print(form.validate_on_submit())
     author = sender.replace('_', ' ') 
-    data = fetch_data(author=author, tail_int=100)
-    return render_template('index.html', data=data, author=sender, form=form)
+    data = fetch_data(author=author, top=100)
+    return render_template('index.html', data=data, author=f'from {author}', form=form)
