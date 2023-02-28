@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="b-example-divider"></div>
+<div class="container">
+    <section class="nes-container with-title py-3 my-3">
+        <h3 class="title">
+            <label for="campaign-select">Individual Campaigns</label></h3>
+
+        <form action="" method="post" novalidate>
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="nes-select is-warning">
+                            {{ form.hidden_tag() }}
+                            {{ form.author(id='campaign-select') }}
+                        </div>
+                    </div>
+                    {{ form.submit(class="nes-btn is-primary showcode mt-3 " ) }}
+                </div>
+        </form>
+            </div>
+    </section>
+</div>
+    <div class="container">
+      <div class="jumbotron">
+
+      </div>
+    </div>

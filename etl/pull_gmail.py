@@ -22,6 +22,7 @@ from mimetypes import guess_type as guess_mime_type
 # local modules
 from sentiment_analysis import sms_features
 from upsert_to_sqlite import SqliteUpserter
+from extract import extract_sqlite
 
 from dotenv import load_dotenv
 load_dotenv('.env')
@@ -133,6 +134,7 @@ def parse_parts(service, parts, folder_name, message, save_attachment=False):
                     print("Saving HTML to", filepath)
                     with open(filepath, "wb") as f:
                         f.write(urlsafe_b64decode(data))
+                text = None
             else:
                 # attachment other than a plain text or HTML
                 for part_header in part_headers:
@@ -151,6 +153,7 @@ def parse_parts(service, parts, folder_name, message, save_attachment=False):
                             if data and save_attachment:
                                 with open(filepath, "wb") as f:
                                     f.write(urlsafe_b64decode(data))
+                    text = None
             return text
 
 
@@ -223,18 +226,19 @@ def main(service, search_sender):
     for msg in results:
         try:
             text, date_sent = read_message(service, msg)
-            if debug:
-                import pdb; pdb.set_trace()
-            search = text_re(text)
-            if search:
-                match = search.group(1)
-                print(f"date sent: {date_sent}")
-                print('===' * 10)
-                print(match)
-                output.append({"date_sent": date_sent, "text":match})
-                sms_parts = sms_features(match, date_sent, search_sender)
-                upserter = SqliteUpserter(sms_parts, debug=debug)
-                upserter.main()
+            if text is not None:
+                if debug:
+                    import pdb; pdb.set_trace()
+                search = text_re(text)
+                if search:
+                    match = search.group(1)
+                    print(f"date sent: {date_sent}")
+                    print('===' * 10)
+                    print(match)
+                    output.append({"date_sent": date_sent, "text":match})
+                    sms_parts = sms_features(match, date_sent, search_sender)
+                    upserter = SqliteUpserter(sms_parts, debug=debug)
+                    upserter.main()
 
         except Exception as e:
             raise e
@@ -249,10 +253,10 @@ def main(service, search_sender):
             writer.writerow([row['date_sent'],search_sender, row['text']])
 
 service = gmail_authenticate()
-
 if search_sender == 'all':
     for number, name in sender_map.items():
         print(f'Searching For messages from {name}')
         main(service, number)
 else:
     main(service, search_sender=search_sender)
+extract_sqlite()

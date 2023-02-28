@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+    <h1 id="about">About</h1>
+    <p>This projects originated from around 2020 when I started getting text messages from the Trump campaign. Some of the texts were frankly pretty wild, and it made me realize that while a lot of political campaigning in the form of ads or even brochures are publicly available, sms campaigning wasn&#39;t. In the end these are targeted pieces of outreach from political campaigns towards their more involved supporters. In the interest of public awareness and research, I decided to set up this website to be a public facing portal to the text messages I&#39;ve been receiving. I have things automated to where the website should have incoming text messages being refreshed on a daily basis. Be sure to check back regularly if this project interests you as I will be adding new features as I have time. </p>
+    <h2 id="how-you-can-help">How you can help</h2>
+    <p>I try to add new campaigns to be monitored when I find them. If you know of a sms campaign that isn&#39;t on the site please email me at politicalsmscampaigns@gmail.com with an explanation on how to enroll in getting text updates. Thanks in advance :) also if you&#39;re learning web development or are otherwise technical feel free to reach out if you&#39;d like to help out with dev work!</p>
+    </div>
+    <h2> Understanding the sentiment scores: Positivity, Negativity, Intensity</h2>
+    <p> These are computed using the Valence Aware Dictionary and sEntiment Reasoner (VADER) which is used for analyzing sentiments expressed through social media, it is a lexicon and rule-based sentiment analytics tool. You can learn more about it <a href="https://github.com/cjhutto/vaderSentiment">here</a>. 
+        <li>Positivity relates to weather the content of the text is more frequently expressing optimism or happiness </li>
+        <li>Negativity relates to weather the content more frequently expresses pessism or unhappiness</li>
+        <li> Intensity is what this website calls what VADER refers to as compound, which is a measure of intensity. A very positive or negative text can vary in terms of it's compound, as in how intensley it expresses anger or optomism</li>
+    </p>
+</div>
+
+{% endblock %}

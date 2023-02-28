@@ -1,0 +1,61 @@
+
+
+* pretty output of polarity P-1
+** use nes css badge styling: 
+<a href="#" class="nes-badge">
+  <span class="is-dark">NES.css</span>
+</a>
+
+<a href="#" class="nes-badge">
+  <span class="is-primary">is</span>
+</a>
+
+<a href="#" class="nes-badge">
+  <span class="is-success">a</span>
+</a>
+
+<a href="#" class="nes-badge">
+  <span class="is-warning">great</span>
+</a>
+
+<a href="#" class="nes-badge">
+  <span class="is-error">framework!</span>
+</a>
+
+<a href="#" class="nes-badge is-splited">
+  <span class="is-dark">npm</span>
+  <span class="is-primary">1.1.0</span>
+</a>
+
+<a href="#" class="nes-badge is-splited">
+  <span class="is-dark">test</span>
+  <span class="is-success">100%</span>
+</a>
+
+<a href="#" class="nes-badge is-icon">
+  <span class="is-warning"><i class="nes-icon star is-small"></i></span>
+  <span class="is-primary">Icons</span>
+</a>
+
+<a href="#" class="nes-badge is-icon">
+  <span class="is-dark">hi</span>
+  <span class="is-warning">Text</span>
+</a>
+** DONE progress bars:
+   CLOSED: [2022-09-11 Sun 21:20]
+<progress class="nes-progress" value="90" max="100"></progress>
+<progress class="nes-progress is-primary" value="80" max="100"></progress>
+<progress class="nes-progress is-success" value="50" max="100"></progress>
+<progress class="nes-progress is-warning" value="30" max="100"></progress>
+<progress class="nes-progress is-error" value="10" max="100"></progress>
+<progress class="nes-progress is-pattern" value="50" max="100"></progress>
+* Document database to store NLP objects P-2: 
+consider using: https://github.com/msiemens/tinydb
+
+* Campaign info page P-3
+Contains charts and graphs of sms frequency, word count, word clouds, polarity over time
+keywords etc. 
+
+* date filtering on search form P-4 
+may require database system that supports datetime types
+

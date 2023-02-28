@@ -1,22 +1,98 @@
-version: '2'
+version: '3'
 
 services:
-  web:
-    build: ./app
-    command: python manage.py run -h 0.0.0.0
+  webserver:
+    build: ./webserver
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./app:/usr/src/app/
-    env_file:
-      - ./.env.dev
-    links:
-      - db 
+      - ./webserver/apache2.conf:/etc/apache2/apache2.conf
+      - ./webserver/ssl:/etc/apache2/ssl
+      - ./webserver/app:/var/www/html
+    environment:
+      - VIRTUAL_HOST=politicalsmscampaigns.com 
+      - LETSENCRYPT_HOST=politicalsmscampaigns.com 
+      - LETSENCRYPT_EMAIL=coreyclip@gmail.com
+    depends_on:
+      - db
+    networks:
+      - web
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - web
+
+  scheduler:
+    image: apache/airflow:2.2.3
+    command: scheduler
+    depends_on:
+      - db
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@db/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    networks:
+      - web
+
+  worker:
+    image: apache/airflow:2.2.3
+    command: worker
+    depends_on:
+      - db
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@db/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    networks:
+      - web
+
+  airflow-init:
+    image: apache/airflow:2.2.3
+    command: version
+    depends_on:
+      - db
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@db/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    networks:
+      - web
+
+  git-web-app:
+    image: python:3.9
+    command: /bin/bash -c "git clone https://github.com/yourusername/your-web-app.git && cd your-web-app && pip install -r requirements.txt && python app.py"
     ports:
       - "5000:5000"
-  db:
-    image: mysql:5.7
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - web
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
     volumes:
-      - ./db:/docker-entrypoin-initdb.d/:ro 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt/certs:/etc/nginx/certs
+      - ./
