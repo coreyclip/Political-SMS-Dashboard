@@ -1,4 +1,6 @@
 import mailbox
+from email import policy
+from email.parser import BytesParser
 import os
 import sys
 
@@ -23,17 +25,34 @@ else:
 counter = 0
 for message in mbox:
     while counter <= read_limit: 
+        # parse the email message
+        msg = BytesParser(policy=policy.default).parsebytes(message.as_bytes())
+
         # get the email sender
-        sender = message['From']
+        sender = msg['From']
 
         # get the date received
-        date_received = message['Date']
-
+        date_received = msg['Date']
         # get the email body text
-        text = message.get_payload()
+        text = ""
+        if msg.is_multipart():
+            for part in msg.walk():
+                ctype = part.get_content_type()
+                cdispo = str(part.get('Content-Disposition'))
+
+                # skip any non-text parts or attachments
+                if ctype not in ['text/plain', 'text/html'] or 'attachment' in cdispo:
+                    continue
+
+                # add the plain text to the text variable
+                text += part.get_payload(decode=True).decode()
+
+        else:
+            # for non-multipart messages, just extract the plain text
+            text = msg.get_payload(decode=True).decode()
 
         # check for attachments
-        for part in message.walk():
+        for part in msg.walk():
             # check if the part is an attachment
             if part.get_content_maintype() == 'multipart':
                 continue
@@ -47,9 +66,11 @@ for message in mbox:
             with open(os.path.join('.', filename), 'wb') as f:
                 f.write(part.get_payload(decode=True))
 
+
         # print out the email details
-        if sender.split("<")[1].strip(">") not in ["petfinder@sfmc.petfinder.com"]:
+        if sender not in ['Petfinder <petfinder@sfmc.petfinder.com>']:
             print('From:', sender)
             print('Date:', date_received)
             print('Text:', text)
             counter += 1
+            print("===" * 10)
